@@ -30,4 +30,9 @@ public class InvalidLoanStateTransitionException extends AbstractPlatformDomainR
             final Object... defaultUserMessageArgs) {
         super("error.msg.loan." + action + "." + postFix, defaultUserMessage, defaultUserMessageArgs);
     }
+
+    public InvalidLoanStateTransitionException withContext(final String loanExternalId, final String action) {
+        return new InvalidLoanStateTransitionException(action, "state.transition.invalid",
+                String.format("%s [loanExternalId=%s, action=%s]", getDefaultUserMessage(), loanExternalId, action));
+    }
 }

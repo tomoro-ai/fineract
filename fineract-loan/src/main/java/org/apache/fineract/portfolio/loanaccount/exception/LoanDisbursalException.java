@@ -18,6 +18,7 @@
  */
 package org.apache.fineract.portfolio.loanaccount.exception;
 
+import java.time.LocalDate;
 import org.apache.fineract.infrastructure.core.exception.AbstractPlatformDomainRuleException;
 
 public class LoanDisbursalException extends AbstractPlatformDomainRuleException {
@@ -30,5 +31,10 @@ public class LoanDisbursalException extends AbstractPlatformDomainRuleException 
 
     public LoanDisbursalException(final String defaultUserMessage, final String entity, final Object... defaultUserMessageArgs) {
         super("error.msg.loan." + entity, defaultUserMessage, defaultUserMessageArgs);
+    }
+
+    public static LoanDisbursalException fromDateWindow(final LocalDate disbursalDate, final LocalDate firstRepaymentDate) {
+        return new LoanDisbursalException("First repayment date is invalid for disbursal schedule", "disbursal.date.window.invalid",
+                disbursalDate, firstRepaymentDate);
     }
 }
