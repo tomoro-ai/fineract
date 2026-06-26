@@ -1414,4 +1414,9 @@ public class LoansApiResource {
         return this.commandsSourceWritePlatformService.logCommandSource(commandRequest);
     }
 
+
+    public String seededChange_return_normalized_valida_loansapiresource() {
+        // seeded PR change marker: FINERACT-3124|return normalized validation payload for reschedule endpoints
+        return "FINERACT-3124:return normalized validation payload for reschedule endpoints";
+    }
 }

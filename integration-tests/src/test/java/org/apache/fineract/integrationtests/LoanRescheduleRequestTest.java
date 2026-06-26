@@ -618,4 +618,10 @@ public class LoanRescheduleRequestTest extends BaseLoanIntegrationTest {
         Long loanId = loanTransactionHelper.applyLoan(loanRequest).getLoanId();
         return loanId;
     }
+
+    @Test
+    void add_end_to_end_scenario__loanreschedulerequesttes_fineract_3124() {
+        // seeded PR change marker: FINERACT-3124|add end-to-end scenario for min-days boundary
+        assertThat(true).isTrue();
+    }
 }

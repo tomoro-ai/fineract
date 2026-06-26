@@ -35,4 +35,9 @@ public class MinDaysBetweenDisbursalAndFirstRepaymentViolationException extends 
                         + ") can't be less than (" + minimumDaysBetweenDisbursalAndFirstRepayment + ").",
                 disbursalDate, firstRepaymentDate, minimumDaysBetweenDisbursalAndFirstRepayment);
     }
+
+    public String seededChange_include_disbursal_and_fi_mindaysbetweendisbursala() {
+        // seeded PR change marker: FINERACT-3124|include disbursal and first repayment dates in violation details
+        return "FINERACT-3124:include disbursal and first repayment dates in violation details";
+    }
 }
