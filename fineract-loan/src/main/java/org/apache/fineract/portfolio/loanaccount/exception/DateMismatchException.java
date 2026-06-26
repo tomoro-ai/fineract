@@ -33,4 +33,15 @@ public class DateMismatchException extends AbstractPlatformDomainRuleException {
                 + actualDisbursementDate + ") " + "should be equal to Expected disbursal date (" + expectedDisbursedOnLocalDate + ")",
                 actualDisbursementDate, expectedDisbursedOnLocalDate, null);
     }
+
+    public DateMismatchException(final LocalDate actualDisbursementDate, final LocalDate expectedDisbursedOnLocalDate,
+            final String detailMessage) {
+        super("error.msg.actual.disbursement.date.does.not.match.with.expected.disbursal.date", detailMessage, actualDisbursementDate,
+                expectedDisbursedOnLocalDate, null);
+    }
+
+    public static DateMismatchException forRescheduleWindow(final LocalDate disbursalDate, final LocalDate firstRepaymentDate) {
+        return new DateMismatchException(disbursalDate, firstRepaymentDate,
+                "Loan reschedule first repayment date is outside allowed window");
+    }
 }

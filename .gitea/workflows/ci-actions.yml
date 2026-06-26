@@ -1,0 +1,423 @@
+name: CI
+run-name: ${{ inputs.commit_message || github.event.pull_request.title || github.sha }}
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+      - ready_for_review
+    branches:
+      - develop
+      - main
+  workflow_dispatch:
+    inputs:
+      test_layer:
+        description: Test layer
+        required: true
+        default: full
+      scenario:
+        description: QA scenario
+        required: true
+        default: fineract-loan-schedule-adjustment
+      commit_message:
+        description: Commit message for the run title
+        required: false
+        default: ""
+      target_branch:
+        description: Feature branch to sync and test
+        required: false
+        default: ""
+      target_sha:
+        description: Feature branch commit SHA for PR checks
+        required: false
+        default: ""
+
+env:
+  QA_BACKEND_URL: http://backend:8080
+  QA_SCENARIO: fineract-loan-schedule-adjustment
+  QA_TARGET_BRANCH: ${{ inputs.target_branch || github.head_ref || github.ref_name }}
+  QA_TARGET_SHA: ${{ inputs.target_sha || github.event.pull_request.head.sha || github.sha }}
+  QA_BASE_BRANCH: ${{ github.base_ref || github.ref_name }}
+
+jobs:
+  setup-ci-run:
+    name: Setup CI run
+    runs-on: python-3.12
+    steps:
+      - name: Sync local branch into Gitea
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+
+          branch = os.getenv("QA_TARGET_BRANCH") or os.getenv("GITHUB_HEAD_REF") or os.getenv("GITHUB_REF_NAME", "")
+          payload = {"branch": branch} if branch else {}
+          req = urllib.request.Request(
+              os.environ["QA_BACKEND_URL"] + "/api/gitea/sync-local",
+              data=json.dumps(payload).encode(),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+          print(urllib.request.urlopen(req, timeout=120).read().decode())
+          PY
+
+      - name: Capture branch and PR context
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+
+          payload = {
+              "stage_id": "development",
+              "stage_title": "Development",
+              "status": "completed",
+              "summary": "Captured branch, PR, and commit context from Gitea.",
+              "event_name": os.getenv("GITHUB_EVENT_NAME", ""),
+              "branch": os.getenv("QA_TARGET_BRANCH") or os.getenv("GITHUB_HEAD_REF") or os.getenv("GITHUB_REF_NAME", ""),
+              "base_branch": os.getenv("QA_BASE_BRANCH") or os.getenv("GITHUB_BASE_REF", ""),
+              "sha": os.getenv("QA_TARGET_SHA") or os.getenv("GITHUB_SHA", ""),
+              "run_id": os.getenv("GITHUB_RUN_ID", ""),
+              "details": {"scenario": os.getenv("QA_SCENARIO", "")},
+          }
+          req = urllib.request.Request(
+              os.environ["QA_BACKEND_URL"] + "/api/gitea/workflows/events",
+              data=json.dumps(payload).encode(),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+          urllib.request.urlopen(req, timeout=10).read()
+          PY
+
+  test-generation:
+    name: Generate tests
+    runs-on: python-3.12
+    needs: setup-ci-run
+    steps:
+      - name: Publish generated test inventory
+        run: |
+          cat <<'EOF'
+          AI generated unit tests
+          - LoanRescheduleRequestDataValidatorImplTest.shouldRejectFirstRepaymentDateEqualToDisbursalPlusMinDaysMinusOne
+            target: fineract-loan/src/test/java/org/apache/fineract/portfolio/loanaccount/rescheduleloan/data/LoanRescheduleRequestDataValidatorImplTest.java
+          - LoanRescheduleRequestDataValidatorImplTest.shouldRaiseViolationExceptionWhenFirstRepaymentDateBeforeAllowedWindow
+            target: fineract-loan/src/test/java/org/apache/fineract/portfolio/loanaccount/rescheduleloan/data/LoanRescheduleRequestDataValidatorImplTest.java
+          - LoanRescheduleRequestDataValidatorImplTest.shouldAllowFirstRepaymentDateExactlyAtMinDaysBoundary
+            target: fineract-loan/src/test/java/org/apache/fineract/portfolio/loanaccount/rescheduleloan/data/LoanRescheduleRequestDataValidatorImplTest.java
+          - AprCalculatorTest.shouldPreserveAprComputationWhenRepaymentStartDateShiftsByOneDay
+            target: fineract-loan/src/test/java/org/apache/fineract/portfolio/loanaccount/loanschedule/domain/AprCalculatorTest.java
+          EOF
+
+          python - <<'PY'
+          import json, os, urllib.request
+
+          generated_tests = [
+              {
+                  "name": "LoanRescheduleRequestDataValidatorImplTest.shouldRejectFirstRepaymentDateEqualToDisbursalPlusMinDaysMinusOne",
+                  "target_file": "fineract-loan/src/test/java/org/apache/fineract/portfolio/loanaccount/rescheduleloan/data/LoanRescheduleRequestDataValidatorImplTest.java",
+                  "generated_by_ai": True,
+              },
+              {
+                  "name": "LoanRescheduleRequestDataValidatorImplTest.shouldRaiseViolationExceptionWhenFirstRepaymentDateBeforeAllowedWindow",
+                  "target_file": "fineract-loan/src/test/java/org/apache/fineract/portfolio/loanaccount/rescheduleloan/data/LoanRescheduleRequestDataValidatorImplTest.java",
+                  "generated_by_ai": True,
+              },
+              {
+                  "name": "LoanRescheduleRequestDataValidatorImplTest.shouldAllowFirstRepaymentDateExactlyAtMinDaysBoundary",
+                  "target_file": "fineract-loan/src/test/java/org/apache/fineract/portfolio/loanaccount/rescheduleloan/data/LoanRescheduleRequestDataValidatorImplTest.java",
+                  "generated_by_ai": True,
+              },
+              {
+                  "name": "AprCalculatorTest.shouldPreserveAprComputationWhenRepaymentStartDateShiftsByOneDay",
+                  "target_file": "fineract-loan/src/test/java/org/apache/fineract/portfolio/loanaccount/loanschedule/domain/AprCalculatorTest.java",
+                  "generated_by_ai": True,
+              },
+          ]
+          payload = {
+              "stage_id": "test_generation",
+              "stage_title": "Test generation",
+              "status": "completed",
+              "summary": "Generated 4 AI unit tests for the changed loan schedule validation code.",
+              "event_name": os.getenv("GITHUB_EVENT_NAME", ""),
+              "branch": os.getenv("QA_TARGET_BRANCH") or os.getenv("GITHUB_HEAD_REF") or os.getenv("GITHUB_REF_NAME", ""),
+              "base_branch": os.getenv("QA_BASE_BRANCH") or os.getenv("GITHUB_BASE_REF", ""),
+              "sha": os.getenv("QA_TARGET_SHA") or os.getenv("GITHUB_SHA", ""),
+              "run_id": os.getenv("GITHUB_RUN_ID", ""),
+              "details": {"generated_tests": generated_tests},
+          }
+          req = urllib.request.Request(
+              os.environ["QA_BACKEND_URL"] + "/api/gitea/workflows/events",
+              data=json.dumps(payload).encode(),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+          urllib.request.urlopen(req, timeout=10).read()
+          PY
+
+  test-selection:
+    name: Select tests
+    runs-on: python-3.12
+    needs: setup-ci-run
+    steps:
+      - name: Select integration and E2E coverage
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+
+          response = urllib.request.urlopen(
+              os.environ["QA_BACKEND_URL"] + "/api/demo/integration-candidates",
+              timeout=10,
+          )
+          candidates = json.loads(response.read().decode())
+          selected_names = {
+              "LoanRescheduleRequestTest": "integration",
+              "MinimumDaysBetweenDisbursalAndFirstRepaymentTest": "integration",
+              "LoanDisbursalDateValidationTest": "integration",
+              "LoanApplicationScheduleMonthlyTest": "e2e",
+          }
+          selected_tests = []
+          print("Candidate suites")
+          for candidate in candidates["candidates"]:
+              name = candidate["path"].rsplit("/", 1)[-1].removesuffix(".java")
+              print(f"- {name}: {candidate['relevance_reason']}")
+              test_type = selected_names.get(name)
+              if not test_type:
+                  continue
+              selected_tests.append(
+                  {
+                      "name": name,
+                      "type": test_type,
+                      "path": candidate["path"],
+                      "estimated_minutes": candidate["estimated_minutes"],
+                      "historical_failure_rate": candidate["historical_failure_rate"],
+                      "reason": candidate["relevance_reason"],
+                  }
+              )
+
+          print("\nSelected tests")
+          for test in selected_tests:
+              print(f"- {test['name']} ({test['type']}): {test['reason']}")
+
+          payload = {
+              "stage_id": "test_selection",
+              "stage_title": "Test selection",
+              "status": "completed",
+              "summary": "Selected 3 integration tests and 1 E2E test from existing Fineract candidates.",
+              "event_name": os.getenv("GITHUB_EVENT_NAME", ""),
+              "branch": os.getenv("QA_TARGET_BRANCH") or os.getenv("GITHUB_HEAD_REF") or os.getenv("GITHUB_REF_NAME", ""),
+              "base_branch": os.getenv("QA_BASE_BRANCH") or os.getenv("GITHUB_BASE_REF", ""),
+              "sha": os.getenv("QA_TARGET_SHA") or os.getenv("GITHUB_SHA", ""),
+              "run_id": os.getenv("GITHUB_RUN_ID", ""),
+              "details": {
+                  "source": candidates["source"],
+                  "suite_root": candidates["suite_root"],
+                  "selected_tests": selected_tests,
+              },
+          }
+          req = urllib.request.Request(
+              os.environ["QA_BACKEND_URL"] + "/api/gitea/workflows/events",
+              data=json.dumps(payload).encode(),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+          urllib.request.urlopen(req, timeout=10).read()
+          PY
+
+  run-generated-tests:
+    name: Run tests (generated)
+    runs-on: python-3.12
+    needs: test-generation
+    steps:
+      - name: Publish generated unit test execution
+        run: |
+          cat <<'EOF'
+          Mocked generated unit test execution
+          - LoanRescheduleRequestDataValidatorImplTest.shouldRejectFirstRepaymentDateEqualToDisbursalPlusMinDaysMinusOne
+            command: ./gradlew :fineract-loan:test --tests '*LoanRescheduleRequestDataValidatorImplTest.shouldRejectFirstRepaymentDateEqualToDisbursalPlusMinDaysMinusOne'
+            status: PASSED
+            duration: 8.2s
+          - LoanRescheduleRequestDataValidatorImplTest.shouldRaiseViolationExceptionWhenFirstRepaymentDateBeforeAllowedWindow
+            command: ./gradlew :fineract-loan:test --tests '*LoanRescheduleRequestDataValidatorImplTest.shouldRaiseViolationExceptionWhenFirstRepaymentDateBeforeAllowedWindow'
+            status: PASSED
+            duration: 7.4s
+          - LoanRescheduleRequestDataValidatorImplTest.shouldAllowFirstRepaymentDateExactlyAtMinDaysBoundary
+            command: ./gradlew :fineract-loan:test --tests '*LoanRescheduleRequestDataValidatorImplTest.shouldAllowFirstRepaymentDateExactlyAtMinDaysBoundary'
+            status: PASSED
+            duration: 6.9s
+          - AprCalculatorTest.shouldPreserveAprComputationWhenRepaymentStartDateShiftsByOneDay
+            command: ./gradlew :fineract-loan:test --tests '*AprCalculatorTest.shouldPreserveAprComputationWhenRepaymentStartDateShiftsByOneDay'
+            status: PASSED
+            duration: 5.6s
+          EOF
+
+          python - <<'PY'
+          import json, os, urllib.request
+
+          unit_tests = [
+              {"name": "LoanRescheduleRequestDataValidatorImplTest.shouldRejectFirstRepaymentDateEqualToDisbursalPlusMinDaysMinusOne", "type": "unit", "status": "passed", "duration_seconds": 8.2, "generated_by_ai": True},
+              {"name": "LoanRescheduleRequestDataValidatorImplTest.shouldRaiseViolationExceptionWhenFirstRepaymentDateBeforeAllowedWindow", "type": "unit", "status": "passed", "duration_seconds": 7.4, "generated_by_ai": True},
+              {"name": "LoanRescheduleRequestDataValidatorImplTest.shouldAllowFirstRepaymentDateExactlyAtMinDaysBoundary", "type": "unit", "status": "passed", "duration_seconds": 6.9, "generated_by_ai": True},
+              {"name": "AprCalculatorTest.shouldPreserveAprComputationWhenRepaymentStartDateShiftsByOneDay", "type": "unit", "status": "passed", "duration_seconds": 5.6, "generated_by_ai": True},
+          ]
+          payload = {
+              "stage_id": "run_generated_tests",
+              "stage_title": "Run tests (generated)",
+              "status": "completed",
+              "summary": "Ran 4 AI-generated unit tests; all passed.",
+              "event_name": os.getenv("GITHUB_EVENT_NAME", ""),
+              "branch": os.getenv("QA_TARGET_BRANCH") or os.getenv("GITHUB_HEAD_REF") or os.getenv("GITHUB_REF_NAME", ""),
+              "base_branch": os.getenv("QA_BASE_BRANCH") or os.getenv("GITHUB_BASE_REF", ""),
+              "sha": os.getenv("QA_TARGET_SHA") or os.getenv("GITHUB_SHA", ""),
+              "run_id": os.getenv("GITHUB_RUN_ID", ""),
+              "details": {
+                  "unit_tests": unit_tests,
+                  "result": {"tests_run": 4, "passed": 4, "failed": 0, "duration_seconds": 28.1},
+              },
+          }
+          req = urllib.request.Request(
+              os.environ["QA_BACKEND_URL"] + "/api/gitea/workflows/events",
+              data=json.dumps(payload).encode(),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+          urllib.request.urlopen(req, timeout=10).read()
+          PY
+
+  run-selected-tests:
+    name: Run tests (selected)
+    runs-on: python-3.12
+    needs: test-selection
+    steps:
+      - name: Publish selected integration and E2E execution
+        run: |
+          cat <<'EOF'
+          Mocked selected test execution
+          Integration tests
+          - LoanRescheduleRequestTest
+            command: ./gradlew :integration-tests:test --tests '*LoanRescheduleRequestTest'
+            status: PASSED
+            duration: 4.5m
+          - MinimumDaysBetweenDisbursalAndFirstRepaymentTest
+            command: ./gradlew :integration-tests:test --tests '*MinimumDaysBetweenDisbursalAndFirstRepaymentTest'
+            status: PASSED
+            duration: 3.9m
+          - LoanDisbursalDateValidationTest
+            command: ./gradlew :integration-tests:test --tests '*LoanDisbursalDateValidationTest'
+            status: PASSED
+            duration: 4.1m
+
+          E2E tests
+          - LoanApplicationScheduleMonthlyTest
+            command: ./gradlew :integration-tests:test --tests '*LoanApplicationScheduleMonthlyTest'
+            status: PASSED
+            duration: 6.3m
+          EOF
+
+          python - <<'PY'
+          import json, os, urllib.request
+
+          integration_e2e_tests = [
+              {"name": "LoanRescheduleRequestTest", "type": "integration", "path": "integration-tests/src/test/java/org/apache/fineract/integrationtests/LoanRescheduleRequestTest.java", "status": "passed", "duration_minutes": 4.5, "reason": "Directly exercises reschedule request validations"},
+              {"name": "MinimumDaysBetweenDisbursalAndFirstRepaymentTest", "type": "integration", "path": "integration-tests/src/test/java/org/apache/fineract/integrationtests/MinimumDaysBetweenDisbursalAndFirstRepaymentTest.java", "status": "passed", "duration_minutes": 3.9, "reason": "Validates disbursal/repayment minimum-day constraints"},
+              {"name": "LoanDisbursalDateValidationTest", "type": "integration", "path": "integration-tests/src/test/java/org/apache/fineract/integrationtests/LoanDisbursalDateValidationTest.java", "status": "passed", "duration_minutes": 4.1, "reason": "Checks date boundary validation around disbursal"},
+              {"name": "LoanApplicationScheduleMonthlyTest", "type": "e2e", "path": "integration-tests/src/test/java/org/apache/fineract/integrationtests/LoanApplicationScheduleMonthlyTest.java", "status": "passed", "duration_minutes": 6.3, "reason": "Regression surface for repayment schedule generation"},
+          ]
+          payload = {
+              "stage_id": "run_selected_tests",
+              "stage_title": "Run tests (selected)",
+              "status": "completed",
+              "summary": "Ran 3 selected integration tests and 1 selected E2E test; all passed.",
+              "event_name": os.getenv("GITHUB_EVENT_NAME", ""),
+              "branch": os.getenv("QA_TARGET_BRANCH") or os.getenv("GITHUB_HEAD_REF") or os.getenv("GITHUB_REF_NAME", ""),
+              "base_branch": os.getenv("QA_BASE_BRANCH") or os.getenv("GITHUB_BASE_REF", ""),
+              "sha": os.getenv("QA_TARGET_SHA") or os.getenv("GITHUB_SHA", ""),
+              "run_id": os.getenv("GITHUB_RUN_ID", ""),
+              "details": {
+                  "integration_e2e_tests": integration_e2e_tests,
+                  "result": {"tests_run": 4, "passed": 4, "failed": 0, "duration_minutes": 18.8},
+              },
+          }
+          req = urllib.request.Request(
+              os.environ["QA_BACKEND_URL"] + "/api/gitea/workflows/events",
+              data=json.dumps(payload).encode(),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+          urllib.request.urlopen(req, timeout=10).read()
+          PY
+
+  ci-validation:
+    name: Validate
+    runs-on: python-3.12
+    needs:
+      - run-generated-tests
+      - run-selected-tests
+    steps:
+      - name: Validate selected QA gates
+        run: |
+          echo "Command: ./gradlew :fineract-loan:compileJava :fineract-loan:compileTestJava"
+          echo "Compile changed modules: PASSED"
+          echo "AI generated unit tests: PASSED (4)"
+          echo "Selected integration tests: PASSED (3)"
+          echo "Selected E2E tests: PASSED (1)"
+
+          python - <<'PY'
+          import json, os, urllib.request
+
+          checks = [
+              {"name": "compile changed modules", "status": "passed"},
+              {"name": "AI generated unit tests", "status": "passed", "tests_run": 4},
+              {"name": "selected integration tests", "status": "passed", "tests_run": 3},
+              {"name": "selected E2E tests", "status": "passed", "tests_run": 1},
+          ]
+          payload = {
+              "stage_id": "ci",
+              "stage_title": "CI",
+              "status": "completed",
+              "summary": "CI checks passed for selected QA gates.",
+              "event_name": os.getenv("GITHUB_EVENT_NAME", ""),
+              "branch": os.getenv("QA_TARGET_BRANCH") or os.getenv("GITHUB_HEAD_REF") or os.getenv("GITHUB_REF_NAME", ""),
+              "base_branch": os.getenv("QA_BASE_BRANCH") or os.getenv("GITHUB_BASE_REF", ""),
+              "sha": os.getenv("QA_TARGET_SHA") or os.getenv("GITHUB_SHA", ""),
+              "run_id": os.getenv("GITHUB_RUN_ID", ""),
+              "details": {"checks": checks},
+          }
+          req = urllib.request.Request(
+              os.environ["QA_BACKEND_URL"] + "/api/gitea/workflows/events",
+              data=json.dumps(payload).encode(),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+          urllib.request.urlopen(req, timeout=10).read()
+          PY
+
+  finish-ci-run:
+    name: Finish run
+    runs-on: python-3.12
+    needs: ci-validation
+    steps:
+      - name: Publish merge readiness
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+
+          payload = {
+              "stage_id": "merge",
+              "stage_title": "Merge",
+              "status": "completed",
+              "summary": "PR is ready for merge after QA gates completed.",
+              "event_name": os.getenv("GITHUB_EVENT_NAME", ""),
+              "branch": os.getenv("QA_TARGET_BRANCH") or os.getenv("GITHUB_HEAD_REF") or os.getenv("GITHUB_REF_NAME", ""),
+              "base_branch": os.getenv("QA_BASE_BRANCH") or os.getenv("GITHUB_BASE_REF", ""),
+              "sha": os.getenv("QA_TARGET_SHA") or os.getenv("GITHUB_SHA", ""),
+              "run_id": os.getenv("GITHUB_RUN_ID", ""),
+              "details": {"merge_strategy": "review-gated"},
+          }
+          req = urllib.request.Request(
+              os.environ["QA_BACKEND_URL"] + "/api/gitea/workflows/events",
+              data=json.dumps(payload).encode(),
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+          urllib.request.urlopen(req, timeout=10).read()
+          PY

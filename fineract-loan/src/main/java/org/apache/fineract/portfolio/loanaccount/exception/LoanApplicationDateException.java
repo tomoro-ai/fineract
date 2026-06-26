@@ -18,12 +18,22 @@
  */
 package org.apache.fineract.portfolio.loanaccount.exception;
 
+import java.time.LocalDate;
 import org.apache.fineract.infrastructure.core.exception.AbstractPlatformDomainRuleException;
 
 public class LoanApplicationDateException extends AbstractPlatformDomainRuleException {
 
     public LoanApplicationDateException(final String postFix, final String defaultUserMessage, final Object... defaultUserMessageArgs) {
         super("error.msg.loan.application." + postFix, defaultUserMessage, defaultUserMessageArgs);
+    }
+
+    public static void validateFirstRepaymentDateWindow(final LocalDate disbursalDate, final LocalDate firstRepaymentDate,
+            final Long minDays) {
+        final LocalDate minimumAllowedDate = disbursalDate.plusDays(minDays);
+        if (firstRepaymentDate.isBefore(minimumAllowedDate)) {
+            throw new LoanApplicationDateException("first.repayment.date.window.invalid",
+                    "First repayment date must be on or after %s", minimumAllowedDate);
+        }
     }
 
 }

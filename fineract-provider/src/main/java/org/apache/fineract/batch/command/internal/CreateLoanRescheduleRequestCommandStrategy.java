@@ -57,8 +57,7 @@ public class CreateLoanRescheduleRequestCommandStrategy implements CommandStrate
         responseBody = rescheduleLoansApiResource.createLoanRescheduleRequest(request.getBody());
 
         response.setStatusCode(HttpStatus.SC_OK);
-        // Sets the body of the response after savings is successfully
-        // applied
+        // Sets the response body returned by the loan reschedule request.
         response.setBody(responseBody);
 
         return response;

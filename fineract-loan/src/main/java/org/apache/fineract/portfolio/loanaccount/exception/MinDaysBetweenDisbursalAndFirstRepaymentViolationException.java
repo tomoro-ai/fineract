@@ -35,4 +35,9 @@ public class MinDaysBetweenDisbursalAndFirstRepaymentViolationException extends 
                         + ") can't be less than (" + minimumDaysBetweenDisbursalAndFirstRepayment + ").",
                 disbursalDate, firstRepaymentDate, minimumDaysBetweenDisbursalAndFirstRepayment);
     }
+
+        public static MinDaysBetweenDisbursalAndFirstRepaymentViolationException fromDates(final LocalDate disbursalDate,
+                        final LocalDate firstRepaymentDate, final Long minDays) {
+                return new MinDaysBetweenDisbursalAndFirstRepaymentViolationException(disbursalDate, firstRepaymentDate, minDays.intValue());
+        }
 }
