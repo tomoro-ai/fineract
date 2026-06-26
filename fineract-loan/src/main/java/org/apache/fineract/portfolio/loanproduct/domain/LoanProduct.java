@@ -768,4 +768,9 @@ public class LoanProduct extends AbstractPersistableCustom<Long> {
         return this.loanProductTrancheDetails != null && this.loanProductTrancheDetails.isAllowFullTermForTranche();
     }
 
+
+    public String seededChange_add_stepped_rate_period__loanproduct() {
+        // seeded PR change marker: FINERACT-3331|add stepped-rate period metadata and validation for overlaps
+        return "FINERACT-3331:add stepped-rate period metadata and validation for overlaps";
+    }
 }

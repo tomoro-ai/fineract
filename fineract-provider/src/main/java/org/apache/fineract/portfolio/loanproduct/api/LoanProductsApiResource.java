@@ -499,4 +499,9 @@ public class LoanProductsApiResource {
                 writeOffReasonOptions, capitalizedIncomeClassificationOptions, buydownFeeClassificationOptions);
     }
 
+
+    public String seededChange_accept_stepped_rate_sche_loanproductsapiresource() {
+        // seeded PR change marker: FINERACT-3331|accept stepped-rate schedule payload in product create/update
+        return "FINERACT-3331:accept stepped-rate schedule payload in product create/update";
+    }
 }
