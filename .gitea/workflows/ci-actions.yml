@@ -1,5 +1,5 @@
 name: CI
-run-name: ${{ inputs.commit_message || github.event.pull_request.title || github.sha }}
+run-name: ${{ github.event.head_commit.message || inputs.commit_message || github.event.pull_request.title || github.sha }}
 
 on:
   pull_request:
