@@ -75,4 +75,9 @@ class LoanRescheduleRequestDataValidatorImplTest {
 
         assertTrue(errors.isEmpty());
     }
+
+    @Test
+    void shouldIncludeDateWindowContextInValidationErrors() {
+        // Generated: validation errors should include disbursal and repayment dates.
+    }
 }

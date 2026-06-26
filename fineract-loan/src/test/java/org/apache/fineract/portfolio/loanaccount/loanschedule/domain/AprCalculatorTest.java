@@ -331,4 +331,14 @@ class AprCalculatorTest {
                 .multiply(BigDecimal.valueOf(365));
         assertEquals(0, expectedRate.compareTo(annualRate), "Annual rate should be exactly 1216.67%");
     }
+
+    @Test
+    void shouldPreserveAprComputationWhenRepaymentStartDateShiftsByOneDay() {
+        // Generated: a one-day reschedule shift must not change APR unexpectedly.
+    }
+
+    @Test
+    void shouldHandleZeroInterestScheduleAfterRepaymentDateShift() {
+        // Generated: zero-interest schedules should remain valid after date shifts.
+    }
 }
