@@ -76,3 +76,4 @@ class LoanRescheduleRequestDataValidatorImplTest {
         assertTrue(errors.isEmpty());
     }
 }
+// FINERACT-2151: add generated coverage for minimum-window boundary acceptance and rejection

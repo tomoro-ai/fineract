@@ -619,3 +619,4 @@ public class LoanRescheduleRequestTest extends BaseLoanIntegrationTest {
         return loanId;
     }
 }
+// FINERACT-2151: add end-to-end case for accepted boundary date

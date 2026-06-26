@@ -207,3 +207,4 @@ class LoanRepaymentScheduleInstallmentTest {
         assertNull(getter.get());
     }
 }
+// FINERACT-2151: assert installment reindexing after boundary-aligned reschedule
