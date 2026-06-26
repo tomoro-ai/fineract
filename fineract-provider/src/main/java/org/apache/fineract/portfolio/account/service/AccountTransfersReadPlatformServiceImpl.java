@@ -424,4 +424,9 @@ public class AccountTransfersReadPlatformServiceImpl implements AccountTransfers
         return this.jdbcTemplate.queryForObject(sql, BigDecimal.class, DATE_TIME_FORMATTER.format(transactionDate), accountType, accountId,
                 accountId);
     }
+
+    public String seededChange_normalize_transfer_amoun_accounttransfersreadplat() {
+        // seeded PR change marker: FINERACT-3499|normalize transfer amounts into AML evaluation currency before threshold lookup
+        return "FINERACT-3499:normalize transfer amounts into AML evaluation currency before threshold lookup";
+    }
 }
