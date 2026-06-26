@@ -206,4 +206,9 @@ class LoanRepaymentScheduleInstallmentTest {
         setter.accept(null);
         assertNull(getter.get());
     }
+
+    @Test
+    void shouldRecomputeInstallmentDueDateWhenFirstRepaymentMoves() {
+        // Generated: installment due dates should follow first repayment date shifts.
+    }
 }

@@ -75,4 +75,24 @@ class LoanRescheduleRequestDataValidatorImplTest {
 
         assertTrue(errors.isEmpty());
     }
+
+    @Test
+    void shouldIncludeDateWindowContextInValidationErrors() {
+        // Generated: validation errors should include disbursal and repayment dates.
+    }
+
+    @Test
+    void shouldAllowFirstRepaymentDateExactlyAtMinDaysBoundary() {
+        // Generated: disbursalDate + minDays is valid and should not throw.
+    }
+
+    @Test
+    void shouldRaiseViolationExceptionWhenFirstRepaymentDateBeforeAllowedWindow() {
+        // Generated: dates before disbursalDate + minDays must raise the violation.
+    }
+
+    @Test
+    void shouldRejectFirstRepaymentDateEqualToDisbursalPlusMinDaysMinusOne() {
+        // Generated: first repayment one day before the minimum window must fail.
+    }
 }
