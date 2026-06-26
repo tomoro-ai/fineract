@@ -1,0 +1,1 @@
+-- FINERACT-OPS-321: keep list db migration in sync for nightly metadata

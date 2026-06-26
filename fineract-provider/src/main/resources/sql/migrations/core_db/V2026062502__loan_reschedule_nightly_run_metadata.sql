@@ -1,0 +1,1 @@
+-- FINERACT-OPS-321: record nightly classifier output for failing reschedule scenarios
