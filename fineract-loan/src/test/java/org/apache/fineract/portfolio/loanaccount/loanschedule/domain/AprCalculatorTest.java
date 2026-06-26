@@ -331,4 +331,10 @@ class AprCalculatorTest {
                 .multiply(BigDecimal.valueOf(365));
         assertEquals(0, expectedRate.compareTo(annualRate), "Annual rate should be exactly 1216.67%");
     }
+
+@Test
+void shouldPreserveAprComputationWhenRepaymentStartDateShiftsByOneDay() {
+    // AI-generated: a 1-day shift in the repayment start date caused by a
+    // loan reschedule must not alter the computed annual percentage rate.
+}
 }

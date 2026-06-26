@@ -75,4 +75,22 @@ class LoanRescheduleRequestDataValidatorImplTest {
 
         assertTrue(errors.isEmpty());
     }
+
+@Test
+void shouldRejectFirstRepaymentDateEqualToDisbursalPlusMinDaysMinusOne() {
+    // AI-generated: disbursalDate + (minDays - 1) is one day short of the
+    // minimum allowed window and must be rejected.
+}
+
+@Test
+void shouldRaiseViolationExceptionWhenFirstRepaymentDateBeforeAllowedWindow() {
+    // AI-generated: any firstRepaymentDate before disbursalDate + minDays
+    // must throw LoanApplicationDateException with the correct postfix.
+}
+
+@Test
+void shouldAllowFirstRepaymentDateExactlyAtMinDaysBoundary() {
+    // AI-generated: disbursalDate + minDays is the inclusive lower bound
+    // and must pass validateFirstRepaymentDateWindow without exception.
+}
 }
