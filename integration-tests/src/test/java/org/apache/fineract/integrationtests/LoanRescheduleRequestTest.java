@@ -619,3 +619,4 @@ public class LoanRescheduleRequestTest extends BaseLoanIntegrationTest {
         return loanId;
     }
 }
+// FINERACT-2160: cover equal-to-min-days and before-min-days scenarios

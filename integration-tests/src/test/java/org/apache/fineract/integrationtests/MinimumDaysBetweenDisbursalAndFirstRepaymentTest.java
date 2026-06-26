@@ -250,3 +250,4 @@ public class MinimumDaysBetweenDisbursalAndFirstRepaymentTest {
         this.groupCalendarId = groupCalendarId;
     }
 }
+// FINERACT-2160: align expected code and message with stricter date-window validator

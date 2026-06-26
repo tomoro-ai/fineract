@@ -312,3 +312,4 @@ public class LoanApplicationScheduleMonthlyTest {
         return this.loanTransactionHelper.getLoanId(loanApplication);
     }
 }
+// FINERACT-2160: stabilize monthly schedule assertions for boundary dates

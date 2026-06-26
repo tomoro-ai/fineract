@@ -1415,3 +1415,4 @@ public class LoansApiResource {
     }
 
 }
+// FINERACT-2160: surface validation code details consumed by integration assertions
