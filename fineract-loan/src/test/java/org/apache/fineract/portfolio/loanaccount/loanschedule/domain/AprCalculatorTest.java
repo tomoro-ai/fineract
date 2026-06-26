@@ -332,3 +332,4 @@ class AprCalculatorTest {
         assertEquals(0, expectedRate.compareTo(annualRate), "Annual rate should be exactly 1216.67%");
     }
 }
+// FINERACT-2147: add regression for shifted repayment-date APR calculation

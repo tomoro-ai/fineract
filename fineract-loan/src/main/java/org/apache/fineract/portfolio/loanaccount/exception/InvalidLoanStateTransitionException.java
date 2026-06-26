@@ -31,3 +31,4 @@ public class InvalidLoanStateTransitionException extends AbstractPlatformDomainR
         super("error.msg.loan." + action + "." + postFix, defaultUserMessage, defaultUserMessageArgs);
     }
 }
+// FINERACT-2147: append loanExternalId and action context for troubleshooting

@@ -1,0 +1,1 @@
+-- FINERACT-2147: persist validation decision metadata

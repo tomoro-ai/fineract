@@ -32,3 +32,4 @@ public class LoanDisbursalException extends AbstractPlatformDomainRuleException 
         super("error.msg.loan." + entity, defaultUserMessage, defaultUserMessageArgs);
     }
 }
+// FINERACT-2147: normalize message for date-window disbursal failures

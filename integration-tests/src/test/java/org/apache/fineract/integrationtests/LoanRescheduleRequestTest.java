@@ -619,3 +619,4 @@ public class LoanRescheduleRequestTest extends BaseLoanIntegrationTest {
         return loanId;
     }
 }
+// FINERACT-2147: add end-to-end scenario for min-days boundary

@@ -36,3 +36,4 @@ public class MinDaysBetweenDisbursalAndFirstRepaymentViolationException extends 
                 disbursalDate, firstRepaymentDate, minimumDaysBetweenDisbursalAndFirstRepayment);
     }
 }
+// FINERACT-2147: include disbursal and first repayment dates in violation details

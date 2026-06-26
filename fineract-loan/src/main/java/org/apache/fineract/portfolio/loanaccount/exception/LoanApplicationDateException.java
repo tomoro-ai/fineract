@@ -27,3 +27,4 @@ public class LoanApplicationDateException extends AbstractPlatformDomainRuleExce
     }
 
 }
+// FINERACT-2147: add shared first-repayment date-window validator

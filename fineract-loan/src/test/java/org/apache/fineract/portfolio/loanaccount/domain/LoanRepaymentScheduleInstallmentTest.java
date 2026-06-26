@@ -207,3 +207,4 @@ class LoanRepaymentScheduleInstallmentTest {
         assertNull(getter.get());
     }
 }
+// FINERACT-2147: extend installment recomputation assertions

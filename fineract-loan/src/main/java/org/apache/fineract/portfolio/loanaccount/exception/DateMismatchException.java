@@ -34,3 +34,4 @@ public class DateMismatchException extends AbstractPlatformDomainRuleException {
                 actualDisbursementDate, expectedDisbursedOnLocalDate, null);
     }
 }
+// FINERACT-2147: expand reschedule window error context

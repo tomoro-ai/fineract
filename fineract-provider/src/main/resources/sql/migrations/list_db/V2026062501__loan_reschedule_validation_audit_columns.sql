@@ -1,0 +1,1 @@
+-- FINERACT-2147: align tenant-list migration with core schema

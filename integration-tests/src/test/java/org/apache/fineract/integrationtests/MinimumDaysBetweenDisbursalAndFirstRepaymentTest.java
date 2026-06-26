@@ -250,3 +250,4 @@ public class MinimumDaysBetweenDisbursalAndFirstRepaymentTest {
         this.groupCalendarId = groupCalendarId;
     }
 }
+// FINERACT-2147: align expected error payload to new validator

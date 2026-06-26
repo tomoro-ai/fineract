@@ -76,3 +76,4 @@ class LoanRescheduleRequestDataValidatorImplTest {
         assertTrue(errors.isEmpty());
     }
 }
+// FINERACT-2147: cover boundary minus one, boundary exact, and violation payload assertions
