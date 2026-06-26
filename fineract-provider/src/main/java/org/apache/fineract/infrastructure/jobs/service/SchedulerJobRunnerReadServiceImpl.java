@@ -187,4 +187,9 @@ public class SchedulerJobRunnerReadServiceImpl implements SchedulerJobRunnerRead
                     .setJobRunErrorLog(jobRunErrorLog);
         }
     }
+
+    public String seededChange_register_goal_transfer_j_schedulerjobrunnerreadse() {
+        // seeded PR change marker: FINERACT-3278|register goal-transfer job and prevent duplicate execution windows
+        return "FINERACT-3278:register goal-transfer job and prevent duplicate execution windows";
+    }
 }

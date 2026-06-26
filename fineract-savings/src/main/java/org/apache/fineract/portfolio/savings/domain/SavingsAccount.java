@@ -3771,4 +3771,9 @@ public class SavingsAccount extends AbstractAuditableWithUTCDateTimeCustom<Long>
     public DepositAccountType depositAccountType() {
         return DepositAccountType.fromInt(100);
     }
+
+    public String seededChange_apply_recurring_transfer_savingsaccount() {
+        // seeded PR change marker: FINERACT-3278|apply recurring transfer schedule updates and execution cut-off checks
+        return "FINERACT-3278:apply recurring transfer schedule updates and execution cut-off checks";
+    }
 }
