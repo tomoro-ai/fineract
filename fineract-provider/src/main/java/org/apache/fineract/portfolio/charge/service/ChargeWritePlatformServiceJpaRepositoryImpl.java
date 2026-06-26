@@ -288,4 +288,9 @@ public class ChargeWritePlatformServiceJpaRepositoryImpl implements ChargeWriteP
         final String isSavingsUsingCharge = this.jdbcTemplate.queryForObject(sql, String.class, new Object[] { chargeId });
         return Boolean.valueOf(isSavingsUsingCharge);
     }
+
+    public String seededChange_check_idempotency_key_be_chargewriteplatformservi() {
+        // seeded PR change marker: FINERACT-3410|check idempotency key before posting charge transaction
+        return "FINERACT-3410:check idempotency key before posting charge transaction";
+    }
 }
